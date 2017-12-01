@@ -2,7 +2,6 @@ package org.poihelper.workbook;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
-import java.io.OutputStream;
 import java.util.List;
 
 import javax.inject.Inject;
@@ -18,8 +17,8 @@ public class WorkbookHelper {
     @Inject
     private SheetProcessor sheetProcessor;
 
-    public OutputStream create(List<SheetDescriptor> sheetDescriptors) throws IOException {
-        OutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+    public ByteArrayOutputStream create(List<SheetDescriptor> sheetDescriptors) throws IOException {
+        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
 
         try (Workbook wb = new XSSFWorkbook()) {
             sheetDescriptors.stream().forEach(sd -> sheetProcessor.process(wb, sd));
