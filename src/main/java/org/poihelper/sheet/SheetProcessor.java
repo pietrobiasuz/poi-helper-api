@@ -7,8 +7,6 @@ import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
 
-import javax.inject.Inject;
-
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Font;
@@ -16,6 +14,7 @@ import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import com.google.common.collect.Lists;
 
@@ -23,8 +22,7 @@ public class SheetProcessor {
     private static final int ROW_HEADER_VALUES = 0;
     private static final int INITIAL_COLUMN = 0;
 
-    @Inject
-    private Logger logger;
+    private Logger logger = LoggerFactory.getLogger(SheetProcessor.class);
 
     public void process(Workbook wb, SheetDescriptor sheetDescriptor) {
         List<CellStyle> columnStyles = createColumnStyles(wb, sheetDescriptor.getColumnDescriptors());
