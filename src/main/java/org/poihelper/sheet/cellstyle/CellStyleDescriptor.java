@@ -1,32 +1,19 @@
-package org.poihelper.sheet;
+package org.poihelper.sheet.cellstyle;
 
 import org.apache.poi.ss.usermodel.HorizontalAlignment;
 import org.apache.poi.ss.usermodel.VerticalAlignment;
 
-public class ColumnDescriptor {
-    public boolean boldHeader;
-    public String header;
+/**
+ * Descritor para o estilo de uma celula da planilha.
+ *
+ * @author pietro.biasuz
+ */
+public class CellStyleDescriptor {
 
     public boolean bold;
     public String dataFormat;
     public HorizontalAlignment hAlign;
     public VerticalAlignment vAlign;
-
-    public boolean isBoldHeader() {
-        return boldHeader;
-    }
-
-    public void setBoldHeader(boolean boldHeader) {
-        this.boldHeader = boldHeader;
-    }
-
-    public String getHeader() {
-        return header;
-    }
-
-    public void setHeader(String header) {
-        this.header = header;
-    }
 
     public boolean isBold() {
         return bold;
