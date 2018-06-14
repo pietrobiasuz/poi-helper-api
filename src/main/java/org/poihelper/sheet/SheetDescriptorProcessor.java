@@ -3,6 +3,7 @@ package org.poihelper.sheet;
 import java.util.Comparator;
 import java.util.List;
 import java.util.Map.Entry;
+
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.apache.poi.ss.usermodel.Row;
@@ -76,11 +77,11 @@ public class SheetDescriptorProcessor {
         return rowNum < sheetDescriptor.getHeaderLines();
     }
 
-    private void createRowCells(List<CellStyle> cellStyles, List<Object> values, Row row) {
+    private void createRowCells(List<CellStyle> columnStyles, List<Object> values, Row row) {
         int columnNum = INITIAL_COLUMN;
 
         for (Object cellValue : values) {
-            createCell(cellStyles.get(columnNum), cellValue, columnNum, row);
+            createCell(columnStyles.get(columnNum), cellValue, columnNum, row);
 
             columnNum++;
         }

@@ -5,6 +5,7 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Optional;
 
+import org.apache.poi.ss.usermodel.CellStyle;
 import org.poihelper.sheet.cellstyle.CellStyleDescriptor;
 import org.poihelper.sheet.cellstyle.CellStyleDescriptorBuilder;
 
@@ -26,7 +27,7 @@ public class SheetDescriptorBuilder {
         this.sheetDescriptor = new SheetDescriptor();
 
         sheetDescriptor.setCellValues(Maps.newHashMap());
-        sheetDescriptor.setColumnCellStyleDescriptors(Lists.newArrayList());
+        sheetDescriptor.setColumnCellStyleDescriptors(Maps.newHashMap());
         sheetDescriptor.setHeaderLines(DEFAULT_HEADER_LINES);
         sheetDescriptor.setHeaderStyle(CellStyleDescriptorBuilder.create()
                         .bold(true)
@@ -56,12 +57,11 @@ public class SheetDescriptorBuilder {
     }
 
     public SheetDescriptorBuilder continueRowValues(Object... cellValuesP) {
-        return rowValues(getLastRow(), cellValuesP);
+        return rowValues(getLastRowOpt().orElse(INITIAL_ROW_CELL_VALUES), cellValuesP);
     }
 
     private Integer getNextRow() {
-        Optional<Integer> max = sheetDescriptor.getCellValues().keySet().stream()
-                        .max(Comparator.naturalOrder());
+        Optional<Integer> max = getLastRowOpt();
 
         Integer nextRow;
 
@@ -74,11 +74,8 @@ public class SheetDescriptorBuilder {
         return nextRow;
     }
 
-    private Integer getLastRow() {
-        Optional<Integer> max = sheetDescriptor.getCellValues().keySet().stream()
-                        .max(Comparator.naturalOrder());
-
-        return max.get();
+    private Optional<Integer> getLastRowOpt() {
+        return sheetDescriptor.getCellValues().keySet().stream().max(Comparator.naturalOrder());
     }
 
     private SheetDescriptorBuilder rowValues(Integer rowNum, Object ... cellValuesP) {
@@ -92,41 +89,63 @@ public class SheetDescriptorBuilder {
         return this;
     }
 
+    /**
+     * Seta a quantidade de linhas de cabecalho da planilha.
+     *
+     * @param headerLines quantidade de linhas
+     */
     public SheetDescriptorBuilder headerLines(int headerLines) {
         this.sheetDescriptor.setHeaderLines(headerLines);
 
         return this;
     }
 
+    /**
+     * Seta o {@link CellStyle} para o cabecalho da planilha.
+     *
+     * <p>
+     * Sobre-escreve o cellStyle da coluna.
+     *
+     * @param cellStyleDescriptor
+     */
     public SheetDescriptorBuilder headerStyle(CellStyleDescriptor cellStyleDescriptor) {
         this.sheetDescriptor.setHeaderStyle(cellStyleDescriptor);
 
         return this;
     }
 
-    public SheetDescriptorBuilder columnDescriptors(Object ... columnDescs) {
-        List<CellStyleDescriptor> columnDescriptors = Lists.newArrayList();
-
-        for (Object object : columnDescs) {
-            CellStyleDescriptor cd;
-
-            if (object instanceof String) {
-                cd = CellStyleDescriptorBuilder.create().build();
-            } else if (object instanceof CellStyleDescriptor) {
-                cd = (CellStyleDescriptor) object;
-            } else if (object instanceof CellStyleDescriptorBuilder) {
-                CellStyleDescriptorBuilder builder = (CellStyleDescriptorBuilder) object;
-                cd = builder.build();
-            } else {
-                throw new IllegalArgumentException("Invalid type for columnDescriptor");
-            }
-
-            columnDescriptors.add(cd);
-        }
-
-        sheetDescriptor.setColumnCellStyleDescriptors(columnDescriptors);
+    /**
+     * Seta o {@link CellStyle} para a coluna da planilha.
+     *
+     * @param colNum non-zero-based da coluna
+     */
+    public SheetDescriptorBuilder columnCellStyle(int colNum, CellStyleDescriptor cellStyle) {
+        sheetDescriptor.getColumnCellStyleDescriptors().put(Integer.valueOf(adjustNum(colNum)), cellStyle);
 
         return this;
+    }
+
+    /**
+     * Seta os {@link CellStyle} para as colunas da planilha em ordem.
+     *
+     * @param cellStyleDescriptors descriptors na ordem das colunas
+     */
+    public SheetDescriptorBuilder columnCellStyles(CellStyleDescriptor ... cellStyleDescriptors) {
+        List<CellStyleDescriptor> cellStyles = Arrays.asList(cellStyleDescriptors);
+
+        for (int ind = 0; ind < cellStyles.size(); ind++) {
+            columnCellStyle(ind, cellStyles.get(ind));
+        }
+
+        return this;
+    }
+
+    private int adjustNum(int nonZeroBased) {
+        if (nonZeroBased < 1) {
+            throw new IllegalArgumentException("Column and row numbers are non zero based. Must be grater than ZERO.");
+        }
+
+        return nonZeroBased - 1;
     }
 
     public SheetDescriptor build() {

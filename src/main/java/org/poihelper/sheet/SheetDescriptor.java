@@ -18,7 +18,7 @@ public class SheetDescriptor {
     private CellStyleDescriptor headerStyle;
 
     private Map<Integer, List<Object>> cellValues;
-    private List<CellStyleDescriptor> columnCellStyleDescriptors;
+    private Map<Integer, CellStyleDescriptor> columnCellStyleDescriptors;
 
     /**
      * @return nome da planilha (ira na aba do workbook)
@@ -64,11 +64,11 @@ public class SheetDescriptor {
         this.headerStyle = headerStyle;
     }
 
-    public List<CellStyleDescriptor> getColumnCellStyleDescriptors() {
+    public Map<Integer, CellStyleDescriptor> getColumnCellStyleDescriptors() {
         return columnCellStyleDescriptors;
     }
 
-    public void setColumnCellStyleDescriptors(List<CellStyleDescriptor> columnCellStyleDescriptors) {
+    public void setColumnCellStyleDescriptors(Map<Integer, CellStyleDescriptor> columnCellStyleDescriptors) {
         this.columnCellStyleDescriptors = columnCellStyleDescriptors;
     }
 
