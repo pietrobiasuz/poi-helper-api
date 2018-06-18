@@ -1,9 +1,8 @@
 package org.poihelper.sheet;
 
 import java.util.Arrays;
-import java.util.Comparator;
 import java.util.List;
-import java.util.Optional;
+import java.util.Set;
 
 import org.apache.poi.ss.usermodel.CellStyle;
 import org.poihelper.sheet.cellstyle.CellStyleDescriptor;
@@ -13,11 +12,11 @@ import com.google.common.collect.Lists;
 import com.google.common.collect.Maps;
 
 public class SheetDescriptorBuilder {
-    private static final int INITIAL_ROW_CELL_VALUES = 0;
     private static final int DEFAULT_HEADER_LINES = 1;
     private static final String DEFAULT_SHEET_NAME = "Sheet-1";
 
     private SheetDescriptor sheetDescriptor;
+    private Integer nextRow = -1;
 
     public static SheetDescriptorBuilder create() {
         return new SheetDescriptorBuilder();
@@ -57,25 +56,15 @@ public class SheetDescriptorBuilder {
     }
 
     public SheetDescriptorBuilder continueRowValues(Object... cellValuesP) {
-        return rowValues(getLastRowOpt().orElse(INITIAL_ROW_CELL_VALUES), cellValuesP);
+        return rowValues(getLastRow(), cellValuesP);
     }
 
     private Integer getNextRow() {
-        Optional<Integer> max = getLastRowOpt();
-
-        Integer nextRow;
-
-        if (max.isPresent()) {
-            nextRow = max.get() + 1;
-        } else {
-            nextRow = INITIAL_ROW_CELL_VALUES;
-        }
-
-        return nextRow;
+        return ++nextRow;
     }
 
-    private Optional<Integer> getLastRowOpt() {
-        return sheetDescriptor.getCellValues().keySet().stream().max(Comparator.naturalOrder());
+    private Integer getLastRow() {
+        return nextRow;
     }
 
     private SheetDescriptorBuilder rowValues(Integer rowNum, Object ... cellValuesP) {
@@ -121,6 +110,16 @@ public class SheetDescriptorBuilder {
      */
     public SheetDescriptorBuilder columnCellStyle(int colNum, CellStyleDescriptor cellStyle) {
         sheetDescriptor.getColumnCellStyleDescriptors().put(Integer.valueOf(adjustNum(colNum)), cellStyle);
+
+        return this;
+    }
+
+    /**
+     * See {@link SheetDescriptorBuilder#columnCellStyle(int, CellStyleDescriptor)}
+     */
+    public SheetDescriptorBuilder columnCellStyle(Set<Integer> colNums, CellStyleDescriptor cellStyle) {
+        colNums.parallelStream()
+            .forEach(colNum -> columnCellStyle(colNum, cellStyle));
 
         return this;
     }

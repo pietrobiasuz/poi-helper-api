@@ -9,6 +9,8 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 import org.poihelper.sheet.SheetDescriptor;
 import org.poihelper.sheet.SheetDescriptorProcessor;
 
+import com.google.common.collect.Lists;
+
 /**
  * Helper para criar workbook a partir de uma lista de {@link SheetDescriptor}.
  *
@@ -29,6 +31,10 @@ public class WorkbookHelper {
         }
 
         return byteArrayOutputStream;
+    }
+
+    public ByteArrayOutputStream create(SheetDescriptor sheetDescriptor) throws IOException {
+        return create(Lists.newArrayList(sheetDescriptor));
     }
 
 }

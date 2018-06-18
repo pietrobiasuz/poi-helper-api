@@ -19,12 +19,7 @@ import com.google.common.collect.Lists;
 public class CellStyleProcessor {
     private Logger logger = LoggerFactory.getLogger(CellStyleProcessor.class);
 
-    private CellStyle defaultCellStyle;
-    //evitar duplicacao do estilo bold font pois geralmente eh muito utilizado
-    private CellStyle cellStyleBoldFont;
-
     private Workbook wb;
-
 
     public CellStyleProcessor(Workbook wb) {
         this.wb = wb;
@@ -43,6 +38,8 @@ public class CellStyleProcessor {
     public List<CellStyle> createColumnCellStyles(int numberOfColumns, Map<Integer, CellStyleDescriptor> map) {
         List<CellStyle> columnStyles = Lists.newArrayList();
 
+        CellStyle defaultCellStyle = createDefaultCellStyle();
+
         for (int colNum = 0; colNum < numberOfColumns; colNum++) {
             CellStyle columnStyle;
 
@@ -50,10 +47,10 @@ public class CellStyleProcessor {
                 CellStyleDescriptor cellStyleDescriptor = map.get(colNum);
 
                 columnStyle = processCellStyleDescriptor(cellStyleDescriptor);
-                logger.trace("Created cell style based on column index {} descriptor", colNum);
+                logger.trace("Assign cell style based on column {} descriptor", colNum);
             } else {
-                columnStyle = wb.createCellStyle();
-                logger.trace("Created default cell style for column index {}", colNum);
+                columnStyle = defaultCellStyle;
+                logger.trace("Assign default cell style for column {}", colNum);
             }
 
             columnStyles.add(columnStyle);
@@ -63,13 +60,7 @@ public class CellStyleProcessor {
     }
 
     public CellStyle processCellStyleDescriptor(CellStyleDescriptor cellStyleDescriptor) {
-        CellStyle columnStyle;
-
-        if (cellStyleDescriptor.isBold()) {
-            columnStyle = getCellStyleBoldFont();
-        } else {
-            columnStyle = getDefaultCellStyle();
-        }
+        CellStyle columnStyle = cellStyleDescriptor.isBold() ? createCellStyleBoldFont() : createDefaultCellStyle();
 
         if (cellStyleDescriptor.getHAlign() != null) {
             columnStyle.setAlignment(cellStyleDescriptor.getHAlign());
@@ -87,33 +78,25 @@ public class CellStyleProcessor {
         return columnStyle;
     }
 
-    private CellStyle getCellStyleBoldFont() {
-        if (cellStyleBoldFont == null) {
-            this.cellStyleBoldFont = generateCellStyleBoldFont(wb);
-        }
+    private CellStyle createDefaultCellStyle() {
+        logger.trace("Created default cell style on workbook");
 
-        return this.cellStyleBoldFont;
+        return wb.createCellStyle();
     }
 
-    private CellStyle getDefaultCellStyle() {
-        if (defaultCellStyle == null) {
-            this.defaultCellStyle = wb.createCellStyle();
-        }
-
-        return this.defaultCellStyle;
-    }
-
-    private CellStyle generateCellStyleBoldFont(Workbook wb) {
+    private CellStyle createCellStyleBoldFont() {
         Font boldFont = createBoldFont();
         CellStyle cellStyle = wb.createCellStyle();
+
         cellStyle.setFont(boldFont);
+        logger.trace("Created bold font cell style on workbook");
 
         return cellStyle;
     }
 
     private Font createBoldFont() {
         Font font = wb.createFont();
-        logger.trace("Created font {} on wb {}", font, wb);
+        logger.trace("Created bold font on workbook");
 
         font.setBold(true);
 
